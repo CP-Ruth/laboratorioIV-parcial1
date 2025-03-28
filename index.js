@@ -17,17 +17,15 @@ const pregunta = (pregunta) => {
 };
 
 // Obtener el nombre del archivo desde los argumentos
-const { archivo: nombreArchivo } = yargs(process.argv).option('archivo', {
-    alias: 'a',
+const { file: nombreArchivo } = yargs(process.argv).option('file', {
+    alias: 'f',
     type: 'string',
-    description: 'El nombre del archivo JSON'
+    description: 'El nombre del archivo JSON',
+    default: 'productos.json'
 }).help().argv;
 
-//Verifico que de el nombre del archivo
-if (!nombreArchivo) {
-    console.log('Por favor, especifica el nombre del archivo usando --archivo=nombre.json');
-    process.exit(1); // Salir si no se proporciona el nombre del archivo
-}
+//Verifico que de el nombre del archivo (ya no se necesita)
+
 
 //Pido los datos del producto
 const juntarDatos = async () => {
@@ -37,27 +35,41 @@ const juntarDatos = async () => {
 
     const datoProducto = { producto, precio, cantidad }; //
 
-    fs.readFile(nombreArchivo, 'utf8', (err, data) => {
+    fs.readFile(nombreArchivo, 'utf-8', (err, data) => {
         let productos = [];
         if (err) {
             console.log('Archivo no encontrado, se creará uno nuevo.');
         } else {
             // Si el archivo existe, parsear los datos
-            productos = JSON.parse(data);
+            try {
+                productos = JSON.parse(data); // Parseo los datos del archivo
+            } catch (parseError) {
+                console.log('El archivo estaba vacío o no tenía formato JSON válido.');
+            }
         }
 
         // Agregar el nuevo producto al array
         productos.push(datoProducto);
 
         // Sobrescribir el archivo con el array actualizado
-        fs.writeFile(nombreArchivo, JSON.stringify(productos, null, 2), 'utf8', (err) => {
+        fs.writeFile(nombreArchivo, JSON.stringify(productos, null, 2), 'utf-8', (err) => {
             if (err) {
                 console.log('Error al escribir el archivo:', err);
             } else {
-                console.log(`El producto ${producto} fue agregado correctamente al archivo.`);
+                console.log(`El producto ${producto} fue agregado correctamente al archivo ${nombreArchivo}.`);
             }
-        });
 
+
+            //Leer y Mostrar el Contenido del Archivo JSON:
+            fs.readFile(nombreArchivo, 'utf-8', (err, data) => {
+                if (err) {
+                    console.error('Error al leer el archivo:', err);
+                } else {
+                    console.log(`Contenido del archivo ${nombreArchivo}:`);
+                    console.log(JSON.parse(data));
+                }
+            })
+        });
         rl.close();
     }
     )
