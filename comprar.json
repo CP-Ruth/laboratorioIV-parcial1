@@ -13,5 +13,10 @@
     "producto": "Harina",
     "precio": "500",
     "cantidad": "6"
+  },
+  {
+    "producto": "LEche",
+    "precio": "520",
+    "cantidad": "2"
   }
 ]
